@@ -1,129 +1,78 @@
+ <div align="center">
+
 # 🌐 Agrega-Caragua
 
-> Infraestrutura distribuída e edge-native para captação, triagem multimodal com IA, normalização e publicação em escala de vagas de emprego.
+### Conectando pessoas, tecnologia e oportunidades.
 
-[![Production App](https://img.shields.io/badge/Production-agrega.pages.dev-blue?style=flat&logo=cloudflarepages)](https://agrega.pages.dev)
-[![Organization](https://img.shields.io/badge/Org-Internal%20%2F%20Private-red?style=flat&logo=github)](https://github.com/Agrega-Caragua)
-[![Runtime](https://img.shields.io/badge/Runtime-Node.js%2020%2B%20%7C%20Cloudflare%20Workers-orange?style=flat&logo=nodedotjs)](https://nodejs.org)
-[![Database](https://img.shields.io/badge/Database-Neon%20Serverless%20Postgres-00E599?style=flat&logo=postgresql)](https://neon.tech)
-[![Stack](https://img.shields.io/badge/Stack-TypeScript%20%7C%20Next.js%20%7C%20Hono-black?style=flat&logo=typescript)](https://typescriptlang.org)
+Uma iniciativa que utiliza tecnologia para facilitar o acesso a oportunidades de emprego e tornar a informação mais acessível à comunidade.
 
----
+[![Plataforma](https://img.shields.io/badge/Acessar%20Plataforma-2563EB?style=for-the-badge&logo=googlechrome&logoColor=white)](https://agrega.pages.dev)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Agrega-Caragua)
 
-## 🎯 Sobre a Organização
-
-O **Agrega-Caragua** é um ecossistema modular construído para centralizar e qualificar o fluxo de vagas de trabalho. O pipeline unifica fontes fragmentadas — scrapers automatizados em portais externos, mensagens soltas de grupos de WhatsApp e fotos de anúncios físicos de rua —, processa os dados brutos através de OCR e Modelos de Linguagem (LLMs), e publica oportunidades verificadas com baixíssima latência no Edge.
+</div>
 
 ---
 
-## 🏗️ Topologia da Arquitetura
+## 👋 Sobre nós
 
-FONTES DE INGESTÃO
- [ Scrapers Externos ]      [ WhatsApp Mensagens ]     [ WhatsApp Fotos/Panfletos ]
- (Indeed, Gupy, Scripts)    (Grupos e Chats Privados)     (Fotos de Cartazes e Murais)
-            │                          │                             │
-            └──────────────────────────┼─────────────────────────────┘
-                                       │
-                                       ▼
-                  ┌──────────────────────────────────────────┐
-                  │        image-scrapper (Porta 4000)       │
-                  │     Universal Gateway & OCR Multimodal   │
-                  │ • Deduplicação SHA-256 antecipada        │
-                  │ • Smart Relevance Guard (Anti-Spam/PIX)  │
-                  │ • Groq Vision (Qwen) + Gemini Failover   │
-                  │ • AI Key Balancer (Least-Inflight)       │
-                  └────────────────────┬─────────────────────┘
-                                       │ Least-Inflight Dispatch
-                                       ▼
-               ┌────────────────────────────────────────────────┐
-               │          agent-agrega (Active-Active)          │
-               │        2x Instâncias Cloudflare Workers        │
-               │ • Formatação e enriquecimento via Hermes LLM   │
-               │ • Extração de Salário, Turno e Requisitos      │
-               │ • Validação tipada estrita com Zod             │
-               │ • Despacho autenticado com segredo timing-safe │
-               └───────────────────────┬────────────────────────┘
-                                       │ POST /api/v1/webhooks/receive/:id
-                                       │ Headers: x-agrega-secret + x-agrega-delivery
-                                       ▼
-                  ┌──────────────────────────────────────────┐
-                  │             agrega (Monorepo)            │
-                  │ • /server: Hono Edge API (Neon Postgres) │
-                  │ • /web: Next.js App Router (SSR & SEO)   │
-                  │ • Painel Administrativo (/admin)         │
-                  │ • Rotação Dinâmica de Chaves de IA (M2M) │
-                  └──────────────────────────────────────────┘
+O **Agrega-Caragua** é um projeto de tecnologia que busca aproximar pessoas de oportunidades de emprego.
+
+A proposta surgiu da necessidade de tornar mais simples o acesso a vagas que muitas vezes estão espalhadas por diferentes plataformas e canais de comunicação.
+
+Por meio de **desenvolvimento de software, automação e inteligência artificial**, buscamos reunir e organizar essas informações em um ambiente acessível, intuitivo e eficiente.
+
+> **Nosso propósito:** utilizar a tecnologia para facilitar conexões e ampliar a visibilidade de oportunidades.
+
+## ✨ O que nos move
+
+- 🔎 **Acessibilidade** — Facilitar a descoberta de oportunidades de emprego.
+- 🔗 **Conexão** — Aproximar pessoas e informações em um só lugar.
+- ⚡ **Automação** — Tornar processos mais eficientes com tecnologia.
+- 💡 **Inovação** — Explorar novas soluções para desafios reais.
+- 🌱 **Impacto** — Desenvolver ferramentas úteis para a comunidade.
 
 ---
 
-## 📦 Repositórios da Organização
+## 🛠️ Tecnologias
 
-Todos os repositórios listados abaixo são de uso **interno e privado**.
+<div align="center">
 
-### 1. [`agrega`](https://github.com/Agrega-Caragua/agrega)
-**Núcleo da Plataforma (Monorepo)**
-* **`/web` (Frontend):** Next.js (App Router), TypeScript estrito, Tailwind CSS, Radix UI e Framer Motion. Renderização focada em SSR e SEO indexável de vagas.
-* **`/server` (API Core):** Hono rodando no Cloudflare Workers, Prisma ORM com Edge Adapter e PostgreSQL Serverless no Neon (com Point-In-Time Recovery ativado).
-* **Segurança e Hardening:** Autenticação via Cookies HTTP-Only (`SameSite=Lax`), barreiras anti-CSRF (cruzamento `Origin` / `Referer`), validação binária de uploads via Magic Bytes e rate limiting por IP.
+**Desenvolvimento**
 
-### 2. [`image-scrapper`](https://github.com/Agrega-Caragua/image-scrapper)
-**Gateway de Ingestão, OCR Multimodal e Load Balancer de Chaves**
-* **Deduplicação Antecipada:** Calcula hash semântico SHA-256 (`empresa + cargo + local + id`). Duplicatas são descartadas como `DUPLICATE_SKIPPED` antes de gerar custos de LLM ou chamadas ao banco.
-* **Pipeline de Visão:** OCR executado primariamente com **Groq Vision** (`qwen/qwen3.8-27b`) com transição automática (failover) para **Google Gemini** (`gemini-3.1-flash-lite` / `gemini-1.5-flash`).
-* **Smart Relevance Guard:** Triagem semântica que descarta comprovantes Pix, cardápios, memes e conversas casuais.
-* **Key Balancer & Circuit Breaker:** Algoritmo *Least-Inflight* com desempate por *Round-Robin*. Pausa automática (cooldown) em erros 429 respeitando o header `Retry-After`.
+![Tecnologias de desenvolvimento](https://skillicons.dev/icons?i=ts,js,nodejs,nextjs,react,html,css&theme=dark)
 
-### 3. [`agent-agrega`](https://github.com/Agrega-Caragua/agent-agrega)
-**Microsserviço de Normalização Inteligente (Serverless)**
-* **Processamento Hermes:** Executa inferência contextual em Cloudflare Workers para inferir e estruturar cargos padronizados, faixas salariais, benefícios e modelos de trabalho.
-* **Cofre M2M:** Não armazena tokens de IA localmente; requisita credenciais saudáveis do pool central sob demanda via `GET /api/v1/agent/keys/next`.
-* **Despacho Confiável:** Entrega via webhook com garantia de idempotência através do cabeçalho `x-agrega-delivery` (UUID) e assinatura criptográfica com `x-agrega-secret`.
+**Backend, dados e infraestrutura**
 
-### 4. *[Pipeline Futuro]* `scrapper-indeed` *(Em importação)*
-Módulo de extração pontual e agendada de vagas do Indeed, construído para enviar lotes formatados diretamente ao endpoint `POST /api/v1/gateway/ingest` do `image-scrapper`.
+![Tecnologias de infraestrutura](https://skillicons.dev/icons?i=postgres,prisma,docker,cloudflare,git,github&theme=dark)
+
+</div>
+
+Além dessas ferramentas, o projeto explora tecnologias de **inteligência artificial, processamento de informações e integração de sistemas**.
 
 ---
 
-## 🔒 Padrões de Comunicação M2M e Segurança
+## 🚀 Em constante evolução
 
-| Origem | Destino | Protocolo / Transporte | Método de Autenticação |
-| :--- | :--- | :--- | :--- |
-| **Bots WhatsApp / Scrapers** | `image-scrapper` | HTTP JSON / Multipart | Rede interna / Chave de Gateway |
-| **`image-scrapper`** | `agent-agrega` | HTTPS JSON | Balanceamento Least-Inflight ativo |
-| **`agent-agrega`** | `agrega` (API Central) | HTTPS JSON (Webhook) | Headers `x-agrega-secret` + `x-agrega-delivery` |
-| **`agent-agrega`** | `agrega` (Cofre M2M) | HTTPS JSON | Token Bearer M2M (`AGENT_API_KEY`) |
+O Agrega-Caragua é um projeto em desenvolvimento contínuo.
+
+Nosso objetivo é aprimorar a experiência de quem procura oportunidades, desenvolver novas funcionalidades e encontrar maneiras mais eficientes de organizar e disponibilizar informações.
+
+Cada atualização representa um passo na construção de uma plataforma cada vez mais útil para a comunidade.
 
 ---
 
-## 💻 Guia Unificado de Inicialização Local
+<div align="center">
 
-Para rodar todo o ecossistema na sua máquina:
+### 🌍 Conheça a plataforma
 
-```bash
-# 1. Monorepo Principal (Core + Web)
-git clone [https://github.com/Agrega-Caragua/agrega.git](https://github.com/Agrega-Caragua/agrega.git)
-cd agrega && npm install
-cd server && cp .env.example .env && npx prisma db push
-npm run dev
-# -> Web: http://localhost:3000 | API: http://localhost:3333
+Acesse o Agrega-Caragua e conheça nossa proposta.
 
-# 2. Gateway de Ingestão & OCR (Porta 4000)
-git clone [https://github.com/Agrega-Caragua/image-scrapper.git](https://github.com/Agrega-Caragua/image-scrapper.git)
-cd image-scrapper && npm install
-cp .env.example .env
-npm run dev
-# -> Gateway: http://localhost:4000
+[![Acessar Agrega-Caragua](https://img.shields.io/badge/Explorar%20o%20Agrega--Caragua-2563EB?style=for-the-badge&logo=googlechrome&logoColor=white)](https://agrega.pages.dev)
 
-# 3. Worker de Formatação Serverless (Portas 8080 e 8081)
-git clone [https://github.com/Agrega-Caragua/agent-agrega.git](https://github.com/Agrega-Caragua/agent-agrega.git)
-cd agent-agrega && npm install
-cp .dev.vars.example .dev.vars
-npm run dev:1 # Inicia Instância 1 em http://localhost:8080
-# npm run dev:2 para iniciar Instância 2 em http://localhost:8081
+---
 
-⚙️ Diretrizes de Engenharia
-Test-Driven Development (TDD): Cobertura com Vitest e Node.js Test Runner para regras de negócio, parsers heurísticos e testes de segurança ofensiva (prevenção contra Mass Assignment e injeções).
+**Agrega-Caragua**
 
-Tipagem Estrita: 100% TypeScript com schemas de entrada e saída validados por Zod em todas as camadas.
+*Tecnologia que aproxima. Oportunidades que transformam.*
 
-Deploy Contínuo: Pipelines automáticos via GitHub Actions apontando diretamente para Cloudflare Pages e Cloudflare Workers, suportando rollback instantâneo via CLI do Wrangler.
+</div>
